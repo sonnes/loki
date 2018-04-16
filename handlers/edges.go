@@ -95,7 +95,7 @@ func SaveEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 
 	// validate edges
 	for idx, edge := range *jsonBody.Edges {
-		if edge.Name == "" {
+		if edge.Name == nil {
 			WriteError(w, &AppError{
 				Code:    http.StatusBadRequest,
 				Message: fmt.Sprintf("Edge at %d does not have `name`", idx),
@@ -156,7 +156,7 @@ func DeleteEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 
 	// validate edges
 	for idx, edge := range *jsonBody.Edges {
-		if edge.Name == "" {
+		if edge.Name == nil {
 			WriteError(w, &AppError{
 				Code:    http.StatusBadRequest,
 				Message: fmt.Sprintf("Edge at %d does not have `name`", idx),

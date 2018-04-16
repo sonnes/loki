@@ -20,11 +20,11 @@ const (
 
 type Edge struct {
 	Id       string     `json:"id,omitempty" db:"id"`
-	Name     string     `json:"name" db:"name"`
+	Name     *string    `json:"name" db:"name"`
 	SrcId    int64      `json:"src_id" db:"src_id"`
-	SrcType  string     `json:"src_type,omitempty" db:"src_type"`
+	SrcType  *string    `json:"src_type,omitempty" db:"src_type"`
 	DestId   int64      `json:"dest_id" db:"dest_id"`
-	DestType string     `json:"dest_type,omitempty" db:"dest_type"`
+	DestType *string    `json:"dest_type,omitempty" db:"dest_type"`
 	Score    float32    `json:"score,omitempty" db:"score,decimal"`
 	Data     *Data      `json:"data,omitempty" db:"data"`
 	Status   string     `json:"status,omitempty" db:"status"`
@@ -180,7 +180,7 @@ func GroupByEdgeName(edgesPtr *[]Edge) map[string][]Edge {
 	groupedEdges := make(map[string][]Edge)
 
 	for _, edge := range allEdges {
-		groupedEdges[edge.Name] = append(groupedEdges[edge.Name], edge)
+		groupedEdges[*edge.Name] = append(groupedEdges[*edge.Name], edge)
 	}
 
 	return groupedEdges
