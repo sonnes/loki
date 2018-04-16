@@ -11,7 +11,8 @@ import (
 )
 
 type InitEdgeRequest struct {
-	Edge *models.EdgeMetadata
+	Name      string
+	Namespace *string
 }
 
 func InitEdgeEndpoint(Db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
@@ -28,16 +29,16 @@ func InitEdgeEndpoint(Db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	if jsonBody.Edge.Name == "" {
+	if jsonBody.Name == "" {
 		WriteError(w, &AppError{
 			Code:    http.StatusBadRequest,
 			Message: "Name is required to initialize the edge",
-			Fields:  &[]string{"edge.name"},
+			Fields:  &[]string{"name"},
 		})
 		return
 	}
 
-	err := database.CreateTable(Db, jsonBody.Edge.Name)
+	err := database.CreateTable(Db, jsonBody.Name)
 
 	if err != nil {
 		WriteError(w, &AppError{
@@ -47,7 +48,7 @@ func InitEdgeEndpoint(Db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.CreateDefaultIndexes(Db, jsonBody.Edge.Name)
+	err = database.CreateDefaultIndexes(Db, jsonBody.Name)
 
 	if err != nil {
 		WriteError(w, &AppError{
@@ -60,7 +61,7 @@ func InitEdgeEndpoint(Db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 	responseJson := make(map[string]string)
 
 	responseJson["success"] = "true"
-	responseJson["message"] = fmt.Sprintf("%s - edge has been created successfully:", jsonBody.Edge.Name)
+	responseJson["message"] = fmt.Sprintf("%s - edge has been created successfully:", jsonBody.Name)
 
 	WriteJson(w, responseJson, http.StatusOK)
 }
@@ -128,7 +129,6 @@ func SaveEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 	responseJson["success"] = "true"
 
 	WriteJson(w, responseJson, http.StatusOK)
-
 }
 
 func DeleteEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
@@ -188,6 +188,51 @@ func DeleteEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 	responseJson := make(map[string]string)
 
 	responseJson["success"] = "true"
+
+	WriteJson(w, responseJson, http.StatusOK)
+}
+
+type QueryRequest struct {
+	Query string `json:"query"`
+}
+
+func RunQueryEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
+
+	var jsonBody QueryRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		WriteError(w, &AppError{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
+		return
+	}
+
+	defer r.Body.Close()
+
+	if jsonBody.Query == "" {
+		WriteError(w, &AppError{
+			Code:    http.StatusBadRequest,
+			Message: "You must provide a query to execute",
+			Fields:  &[]string{"query"},
+		})
+		return
+	}
+
+	edgeListPtr, queryErr := models.RunQuery(db, jsonBody.Query)
+
+	if queryErr != nil {
+		WriteError(w, &AppError{
+			Code:    http.StatusInternalServerError,
+			Message: queryErr.Error(),
+		})
+		return
+	}
+
+	responseJson := make(map[string]interface{})
+
+	responseJson["success"] = "true"
+	responseJson["edges"] = *edgeListPtr
 
 	WriteJson(w, responseJson, http.StatusOK)
 }

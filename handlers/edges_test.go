@@ -33,7 +33,6 @@ func TestHealthCHeck(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-
 }
 
 func TestInitEdgeEndpoint(t *testing.T) {
@@ -46,9 +45,7 @@ func TestInitEdgeEndpoint(t *testing.T) {
 
 	postBody := fmt.Sprintf(`
     {
-      "edge" : {
-        "name": "%s"
-      }
+      "name": "%s"
     }
   `, testTableName)
 
@@ -71,7 +68,6 @@ func TestInitEdgeEndpoint(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
-
 }
 
 func TestInitEdgeEndpoint_NameValidation(t *testing.T) {
@@ -80,11 +76,7 @@ func TestInitEdgeEndpoint_NameValidation(t *testing.T) {
 
 	defer Db.Close()
 
-	postBody := `
-    {
-      "edge" : {}
-    }
-  `
+	postBody := "{}"
 
 	req := httptest.NewRequest("POST", "/v1/edges/init", bytes.NewReader([]byte(postBody)))
 	req.Header.Add("Content-Type", "application/json")
@@ -203,6 +195,32 @@ func TestDeleteEdgesEndpoint(t *testing.T) {
   `, testTableName)
 
 	req := httptest.NewRequest("POST", "/v1/edges/delete", bytes.NewReader([]byte(postBody)))
+	req.Header.Add("Content-Type", "application/json")
+
+	res := httptest.NewRecorder()
+	handler := CreateRouter(Db)
+
+	handler.ServeHTTP(res, req)
+
+	if status := res.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+}
+
+func TestRunQueryEndpoint(t *testing.T) {
+
+	Db := database.InitDB(LOCAL_DB_URL)
+
+	defer Db.Close()
+
+	postBody := `
+    {
+      "query" : "SELECT 1 as src_id, 2 as dest_id, '' as src_type, '' as dest_type, 0 as score, '1' as id, 'test_edge' as name, 'active' as status, now() as updated"
+    }
+  `
+
+	req := httptest.NewRequest("POST", "/v1/edges/query", bytes.NewReader([]byte(postBody)))
 	req.Header.Add("Content-Type", "application/json")
 
 	res := httptest.NewRecorder()

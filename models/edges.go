@@ -18,22 +18,17 @@ const (
 	DELETED EdgeStatus = "deleted"
 )
 
-type EdgeMetadata struct {
-	Name      string
-	Namespace *string
-}
-
 type Edge struct {
-	Id       string     `json:"id,omitempty"`
-	Name     string     `json:"name"`
-	SrcId    int64      `json:"src_id"`
-	SrcType  string     `json:"src_type,omitempty"`
-	DestId   int64      `json:"dest_id"`
-	DestType string     `json:"dest_type,omitempty"`
-	Score    float32    `json:"score,omitempty"`
-	Data     *Data      `json:"data,omitempty"`
-	Status   string     `json:"status,omitempty"`
-	Updated  *time.Time `json:"updated,omitempty"`
+	Id       string     `json:"id,omitempty" db:"id"`
+	Name     string     `json:"name" db:"name"`
+	SrcId    int64      `json:"src_id" db:"src_id"`
+	SrcType  string     `json:"src_type,omitempty" db:"src_type"`
+	DestId   int64      `json:"dest_id" db:"dest_id"`
+	DestType string     `json:"dest_type,omitempty" db:"dest_type"`
+	Score    float32    `json:"score,omitempty" db:"score,decimal"`
+	Data     *Data      `json:"data,omitempty" db:"data"`
+	Status   string     `json:"status,omitempty" db:"status"`
+	Updated  *time.Time `json:"updated,omitempty" db:"updated,timestamp"`
 }
 
 type Data map[string]interface{}
@@ -163,6 +158,19 @@ func DeleteMany(db *sqlx.DB, edgesPtr *[]Edge) error {
 	}
 
 	return nil
+}
+
+func RunQuery(db *sqlx.DB, query string) (*[]Edge, error) {
+
+	edgeList := make([]Edge, 0)
+
+	err := db.Select(&edgeList, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &edgeList, nil
 }
 
 func GroupByEdgeName(edgesPtr *[]Edge) map[string][]Edge {

@@ -35,6 +35,7 @@ func CreateRouter(Db *sqlx.DB) *chi.Mux {
 		api.With(jsonRequired).Post("/edges/init", AttachDB(Db, InitEdgeEndpoint))
 		api.With(jsonRequired).Post("/edges/save", AttachDB(Db, SaveEdgesEndpoint))
 		api.With(jsonRequired).Post("/edges/delete", AttachDB(Db, DeleteEdgesEndpoint))
+		api.With(jsonRequired).Post("/edges/query", AttachDB(Db, RunQueryEndpoint))
 
 	})
 
