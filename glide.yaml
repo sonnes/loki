@@ -1,0 +1,8 @@
+package: gitlab.com/pagalguy/loki
+import:
+- package: github.com/jmoiron/sqlx
+- package: github.com/ExpansiveWorlds/instrumentedsql
+- package: github.com/go-chi/chi
+  version: ^3.3.2
+- package: google.golang.org/appengine
+- package: github.com/lib/pq
