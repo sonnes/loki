@@ -11,11 +11,9 @@ import (
 	"gitlab.com/pagalguy/loki/database"
 )
 
-type EdgeStatus string
-
 const (
-	ACTIVE  EdgeStatus = "active"
-	DELETED EdgeStatus = "deleted"
+	ACTIVE  string = "active"
+	DELETED string = "deleted"
 )
 
 type Edge struct {
@@ -115,7 +113,7 @@ func SaveMany(db *sqlx.DB, edgesPtr *[]Edge) error {
 			placeholder := database.GeneratePlaceholder(idx*9+1, 9)
 
 			valueStrings = append(valueStrings, placeholder)
-			valueArgs = append(valueArgs, edge.DbId(), edge.SrcId, edge.SrcType, edge.DestId, edge.DestType, edge.Score, edge.Data, ACTIVE, time.Now())
+			valueArgs = append(valueArgs, edge.DbId(), edge.SrcId, edge.SrcType, edge.DestId, edge.DestType, edge.Score, edge.Data, edge.Status, time.Now())
 		}
 
 		query = query + strings.Join(valueStrings, " , ")

@@ -6,3 +6,7 @@ import:
   version: ^3.3.2
 - package: google.golang.org/appengine
 - package: github.com/lib/pq
+- package: cloud.google.com/go
+  subpackages:
+  - pubsub
+- package: github.com/googleapis/gax-go

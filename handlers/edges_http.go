@@ -154,8 +154,13 @@ func DeleteEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate edges
+	// validate edges & add default values
 	for idx, edge := range *jsonBody.Edges {
+
+		if edge.Status == "" {
+			edge.Status = models.ACTIVE
+		}
+
 		if edge.Name == nil {
 			WriteError(w, &AppError{
 				Code:    http.StatusBadRequest,

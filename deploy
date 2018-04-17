@@ -1,0 +1,3 @@
+ gcloud --project=paagal-starlord \
+  app deploy edgestore.yaml \
+  --version v1 --promote --quiet
