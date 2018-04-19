@@ -70,6 +70,23 @@ func StartPubsubListen(db *sqlx.DB) error {
 			return
 		}
 
+		// validate edges & add default values
+		for _, edge := range *message.Edges {
+
+			if edge.Status == "" {
+				edge.Status = models.ACTIVE
+			}
+
+			if edge.Updated == nil && message.Timestamp != nil {
+				edge.Updated = message.Timestamp
+			} else if edge.Updated == nil {
+				curr := time.Now()
+				edge.Updated = &curr
+			}
+
+			// TODO how to validate and deal with message ack/no-ack
+		}
+
 		if message.Action == "/edges/save" {
 			err = models.SaveMany(db, message.Edges)
 		} else if message.Action == "/edges/delete" {
@@ -80,6 +97,7 @@ func StartPubsubListen(db *sqlx.DB) error {
 			log.Printf("Error while executing save/delete %v", err)
 			m.Nack()
 		} else {
+			log.Printf("Processed %d edges", len(*message.Edges))
 			m.Ack()
 		}
 

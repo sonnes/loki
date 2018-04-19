@@ -77,22 +77,29 @@ const (
 		VALUES
 	`
 	VALUE_PLACEHODERS string = " (?, ?, ?, ?, ?, ?, ?, ?, ?) "
-	UPDATE_PART       string = `
-		ON CONFLICT (id) DO UPDATE SET (
-			src_type,
-			dest_type,
-			score,
-			DATA,
-			status,
-			updated
-		) = (
-			EXCLUDED.src_type,
-			EXCLUDED.dest_type,
-			EXCLUDED.score,
-			EXCLUDED.data,
-			EXCLUDED.status,
-			EXCLUDED.updated
-		)
+	// The on conflict part makes sure that slate data
+	// is not updated into DB.
+	UPDATE_PART string = `
+		ON CONFLICT (id) DO UPDATE
+			SET
+				src_type = CASE WHEN %[1]s.updated < EXCLUDED.updated
+					THEN EXCLUDED.src_type
+					ELSE %[1]s.src_type END,
+				dest_type = CASE WHEN %[1]s.updated < EXCLUDED.updated
+					THEN EXCLUDED.dest_type
+					ELSE %[1]s.dest_type END,
+				score = CASE WHEN %[1]s.updated < EXCLUDED.updated
+					THEN EXCLUDED.score
+					ELSE %[1]s.score END,
+				data = CASE WHEN %[1]s.updated < EXCLUDED.updated
+					THEN EXCLUDED.data
+					ELSE %[1]s.data END,
+				status = CASE WHEN %[1]s.updated < EXCLUDED.updated
+					THEN EXCLUDED.status
+					ELSE %[1]s.status END,
+				updated = CASE WHEN %[1]s.updated < EXCLUDED.updated
+					THEN EXCLUDED.updated
+					ELSE %[1]s.updated END
 	`
 	DELETE_PART = "UPDATE %s SET status=$1, updated=$2 WHERE id IN %s"
 )
@@ -113,12 +120,16 @@ func SaveMany(db *sqlx.DB, edgesPtr *[]Edge) error {
 			placeholder := database.GeneratePlaceholder(idx*9+1, 9)
 
 			valueStrings = append(valueStrings, placeholder)
-			valueArgs = append(valueArgs, edge.DbId(), edge.SrcId, edge.SrcType, edge.DestId, edge.DestType, edge.Score, edge.Data, edge.Status, time.Now())
+			valueArgs = append(
+				valueArgs, edge.DbId(), edge.SrcId,
+				edge.SrcType, edge.DestId, edge.DestType, edge.Score,
+				edge.Data, edge.Status, edge.Updated,
+			)
 		}
 
 		query = query + strings.Join(valueStrings, " , ")
 
-		query = query + UPDATE_PART
+		query = query + fmt.Sprintf(UPDATE_PART, edgeName)
 
 		_, err := db.Exec(query, valueArgs...)
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"gitlab.com/pagalguy/loki/database"
@@ -93,7 +94,7 @@ func SaveEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate edges
+	// validate edges & add default values, if required
 	for idx, edge := range *jsonBody.Edges {
 		if edge.Name == nil {
 			WriteError(w, &AppError{
@@ -159,6 +160,11 @@ func DeleteEdgesEndpoint(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 
 		if edge.Status == "" {
 			edge.Status = models.ACTIVE
+		}
+
+		if edge.Updated == nil {
+			updated := time.Now()
+			edge.Updated = &updated
 		}
 
 		if edge.Name == nil {

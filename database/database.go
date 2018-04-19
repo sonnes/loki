@@ -1,13 +1,15 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"strings"
 
+	"github.com/ExpansiveWorlds/instrumentedsql"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 const (
@@ -38,16 +40,24 @@ const (
 
 func InitDB(databaseURL string) *sqlx.DB {
 
-	driverType := "postgres"
+	dbDriver, err := sql.Open("postgres", databaseURL)
+	Db := sqlx.NewDb(dbDriver, "postgres")
 
-	/*logger := instrumentedsql.LoggerFunc(func(ctx context.Context, msg string, keyvals ...interface{}) {
+	if err != nil {
+		log.Fatalf("could not open database connection: %v\n", err)
+	}
+	return Db
+}
+
+func InitDebugDB(databaseURL string) *sqlx.DB {
+
+	logger := instrumentedsql.LoggerFunc(func(ctx context.Context, msg string, keyvals ...interface{}) {
 		log.Printf("%s %v", msg, keyvals)
 	})
 
 	sql.Register("instrumented-postgres", instrumentedsql.WrapDriver(&pq.Driver{}, instrumentedsql.WithLogger(logger)))
-	driverType := "instrumented-postgres"*/
 
-	dbDriver, err := sql.Open(driverType, databaseURL)
+	dbDriver, err := sql.Open("instrumented-postgres", databaseURL)
 	Db := sqlx.NewDb(dbDriver, "postgres")
 
 	if err != nil {
