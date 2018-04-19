@@ -17,9 +17,10 @@ const (
 )
 
 type PubsubMessage struct {
-	Action    string           `json:"action"`
-	Payload   *json.RawMessage `json:"payload"`
-	Timestamp *time.Time       `json:"timestamp"`
+	Action    string         `json:"action"`
+	Edges     *[]models.Edge `json:"edges"`
+	Payload   *[]models.Edge `json:"payload"`
+	Timestamp *time.Time     `json:"timestamp"`
 }
 
 func StartPubsubListen(db *sqlx.DB) error {
@@ -31,7 +32,15 @@ func StartPubsubListen(db *sqlx.DB) error {
 		return err
 	}
 
+	log.Printf("Intialized client: %v", client)
+
 	topic, err := createTopicIfNotExists(client, TOPIC_NAME)
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Intialized topic: %v", topic)
 
 	// create a subscrption
 	subscription, err := createSubIfNotExists(client, topic, "edgestore.edges.subscription")
@@ -40,57 +49,44 @@ func StartPubsubListen(db *sqlx.DB) error {
 		return err
 	}
 
+	log.Printf("Listening to subscription: %v", subscription)
+
 	err = subscription.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
 
 		var message PubsubMessage
+		var err error
 
 		err = json.Unmarshal(m.Data, &message)
 
 		if err != nil {
-			log.Print(err)
-			log.Fatalf("Could not process data: %v", m.Data)
+			log.Printf("Could not parse JSON from message. Ignoring & Acking. Error: %v", err)
 			m.Ack()
+			return
+		}
+
+		if message.Edges == nil {
+			log.Print("No edges in payload. Ignoring & Acking")
+			m.Ack()
+			return
+		}
+
+		if message.Action == "/edges/save" {
+			err = models.SaveMany(db, message.Edges)
+		} else if message.Action == "/edges/delete" {
+			err = models.DeleteMany(db, message.Edges)
+		}
+
+		if err != nil {
+			log.Printf("Error while executing save/delete %v", err)
+			m.Nack()
 		} else {
-
-			err := HandlePubsubMessage(db, &message)
-
-			if err != nil {
-				log.Print(err)
-				log.Fatalf("Could not handle data: %v", message)
-				m.Ack()
-			} else {
-				m.Ack()
-			}
+			m.Ack()
 		}
 
 	})
 
 	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func HandlePubsubMessage(db *sqlx.DB, message *PubsubMessage) error {
-
-	var jsonBody EdgesListRequest
-
-	err := json.Unmarshal(*message.Payload, &jsonBody)
-
-	if err != nil {
-		return err
-	}
-
-	if message.Action == "/edges/save" {
-		log.Printf("Saving %d edges", len(*jsonBody.Edges))
-		err = models.SaveMany(db, jsonBody.Edges)
-	} else if message.Action == "/edges/delete" {
-		log.Printf("Deleting %d edges", len(*jsonBody.Edges))
-		err = models.DeleteMany(db, jsonBody.Edges)
-	}
-
-	if err != nil {
+		log.Printf("Error from subscription receive %v", err)
 		return err
 	}
 

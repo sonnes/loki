@@ -25,7 +25,7 @@ func main() {
 
 	router := handlers.CreateRouter(db)
 
-	// go handlers.StartPubsubListen(db)
+	go handlers.StartPubsubListen(db)
 
 	http.Handle("/", router)
 	appengine.Main()
