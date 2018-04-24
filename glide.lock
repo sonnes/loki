@@ -1,5 +1,5 @@
-hash: b5917412bbaf4b548b8f5fd2c56f1a9b2035814832fad114ac22decc0feecca5
-updated: 2018-04-19T13:02:19.080194+05:30
+hash: 7b138321c7baf01efbfff6d7adf90de139152739da1a25763204232fed6708ae
+updated: 2018-04-19T14:32:00.763069+05:30
 imports:
 - name: cloud.google.com/go
   version: 84e97cec85b2dfd012f89bb05135a856f8624aca
@@ -43,6 +43,10 @@ imports:
   - oid
 - name: github.com/pkg/errors
   version: 816c9085562cd7ee03e7f8188a1cfd942858cded
+- name: github.com/syndtr/goleveldb
+  version: 714f901b98fdb3aa954b4193d8cbd64a28d80cad
+  subpackages:
+  - leveldb/journal
 - name: go.opencensus.io
   version: 268594c8cd3c6e80da8c92923093aa1640ea7db4
   subpackages:

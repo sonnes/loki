@@ -9,3 +9,6 @@ import:
   subpackages:
   - pubsub
 - package: github.com/googleapis/gax-go
+- package: github.com/syndtr/goleveldb
+  subpackages:
+  - leveldb/journal
