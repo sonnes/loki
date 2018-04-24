@@ -1,1 +1,1 @@
-go build -o $GOPATH/bin/loki-web ./web
+go build -o $GOPATH/bin/loki-web .

@@ -3,7 +3,9 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
+	"os"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -13,7 +15,6 @@ import (
 
 const (
 	PROJECT_ID string = "prepathon-infrastructure"
-	TOPIC_NAME string = "edgestore.edges.sync"
 )
 
 type PubsubMessage struct {
@@ -26,6 +27,12 @@ type PubsubMessage struct {
 func StartPubsubListen(db *sqlx.DB) error {
 	ctx := context.Background()
 
+	topicName := os.Getenv("SYNC_PUBSUB_TOPIC_NAME")
+
+	if topicName == "" {
+		return errors.New("SYNC_PUBSUB_TOPIC_NAME env variable is not initialized")
+	}
+
 	client, err := pubsub.NewClient(ctx, PROJECT_ID)
 
 	if err != nil {
@@ -34,7 +41,7 @@ func StartPubsubListen(db *sqlx.DB) error {
 
 	log.Printf("Intialized client: %v", client)
 
-	topic, err := createTopicIfNotExists(client, TOPIC_NAME)
+	topic, err := createTopicIfNotExists(client, topicName)
 
 	if err != nil {
 		return err

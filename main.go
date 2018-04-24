@@ -7,7 +7,6 @@ import (
 
 	"gitlab.com/pagalguy/loki/database"
 	"gitlab.com/pagalguy/loki/handlers"
-	"google.golang.org/appengine"
 )
 
 func main() {
@@ -27,6 +26,20 @@ func main() {
 
 	go handlers.StartPubsubListen(db)
 
-	http.Handle("/", router)
-	appengine.Main()
+	// API Server
+	port := env("PORT", "8080")
+	log.Printf("Listening on port %s", port)
+	log.Fatal(http.ListenAndServe(":"+port, router))
+
+}
+
+func env(key, fallbackValue string) string {
+
+	value, isPresent := os.LookupEnv(key)
+
+	if !isPresent {
+		return fallbackValue
+	}
+
+	return value
 }

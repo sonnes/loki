@@ -3,7 +3,6 @@ import:
 - package: github.com/jmoiron/sqlx
 - package: github.com/ExpansiveWorlds/instrumentedsql
 - package: github.com/go-chi/chi
-- package: google.golang.org/appengine
 - package: github.com/lib/pq
 - package: cloud.google.com/go
   subpackages:
@@ -12,3 +11,4 @@ import:
 - package: github.com/syndtr/goleveldb
   subpackages:
   - leveldb/journal
+- package: google.golang.org/appengine
