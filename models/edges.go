@@ -76,7 +76,6 @@ const (
 		)
 		VALUES
 	`
-	VALUE_PLACEHODERS string = " (?, ?, ?, ?, ?, ?, ?, ?, ?) "
 	// The on conflict part makes sure that slate data
 	// is not updated into DB.
 	UPDATE_PART string = `

@@ -128,12 +128,13 @@ type Post struct {
 }
 
 type Follow struct {
-	Key        *ds_to_sql.Key
-	SrcKey     *ds_to_sql.Key `datastore:"src_key"`
-	DestKey    *ds_to_sql.Key `datastore:"dest_key"`
-	FollowedAt *time.Time     `datastore:"created"`
-	Updated    *time.Time     `datastore:"updated"`
-	Source     *string        `datastore:"source"`
+	Key      *ds_to_sql.Key
+	SrcKey   *ds_to_sql.Key `datastore:"src_key"`
+	DestKey  *ds_to_sql.Key `datastore:"dest_key"`
+	DestType string         `datastore:"dest_type"`
+	Created  time.Time      `datastore:"created"`
+	Updated  time.Time      `datastore:"updated"`
+	Source   string         `datastore:"source"`
 }
 
 func (dsObj *Follow) SetKey(entityKey *ds_to_sql.Key) {
@@ -143,15 +144,27 @@ func (dsObj *Follow) SetKey(entityKey *ds_to_sql.Key) {
 func (dsObj *Follow) ExtractCSV() *[][]string {
 
 	score := "null"
-	if dsObj.FollowedAt != nil {
-		score = dsObj.FollowedAt.UTC().Format(time.RFC3339)
-	} else if dsObj.Updated != nil {
-		score = dsObj.Updated.UTC().Format(time.RFC3339)
+	updated := "null"
+	if !dsObj.Updated.IsZero() {
+		updated = dsObj.Updated.UTC().Format(time.RFC3339)
+		score = strconv.FormatInt(UnixMilli(&dsObj.Updated), 10)
+	} else if !dsObj.Created.IsZero() {
+		updated = dsObj.Created.UTC().Format(time.RFC3339)
+		score = strconv.FormatInt(UnixMilli(&dsObj.Created), 10)
 	}
 
 	srcId := strconv.FormatInt(dsObj.SrcKey.IntID(), 10)
 	destId := strconv.FormatInt(dsObj.DestKey.IntID(), 10)
 	id := srcId + ":" + destId
+
+	data := "null"
+	if dsObj.Source != "" {
+		dataJson := map[string]string{
+			"source": dsObj.Source,
+		}
+		dataBytes, _ := json.Marshal(dataJson)
+		data = string(dataBytes)
+	}
 
 	edgeCSV := []string{
 		"follow",
@@ -162,9 +175,13 @@ func (dsObj *Follow) ExtractCSV() *[][]string {
 		strings.ToLower(dsObj.DestKey.Kind()),
 		score,
 		"active",
-		"null",
-		"null",
+		updated,
+		data,
 	}
 
 	return &[][]string{edgeCSV}
+}
+
+func UnixMilli(ts *time.Time) int64 {
+	return ts.UnixNano() / int64(time.Millisecond)
 }

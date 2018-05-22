@@ -49,15 +49,15 @@ func ReadDSFile(filePath string, newDst func() CSVMixin) (*[][]string, error) {
 		dst := newDst()
 
 		// protobuf to entity
-		LoadEntity(dst, pb)
+		err = LoadEntity(dst, pb)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		key, _ := protoToKey(pb.GetKey())
 		dst.SetKey(key)
 
-		/*for _, prop := range pb.Property {
-			log.Println(prop.Name)
-		}
-		*/
 		// entity to csv
 		entityRows := *dst.ExtractCSV()
 
