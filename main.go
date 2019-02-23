@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"gitlab.com/pagalguy/loki/database"
-	"gitlab.com/pagalguy/loki/handlers"
+	"github.com/sonnes/loki/database"
+	"github.com/sonnes/loki/handlers"
 )
 
 func main() {

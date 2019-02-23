@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"gitlab.com/pagalguy/loki/ds_to_sql"
+	"github.com/sonnes/loki/ds_to_sql"
 )
 
 func Walker(done <-chan bool, root string) (<-chan string, <-chan error) {

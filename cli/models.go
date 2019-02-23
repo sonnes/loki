@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/pagalguy/loki/ds_to_sql"
+	"github.com/sonnes/loki/ds_to_sql"
 )
 
 /*

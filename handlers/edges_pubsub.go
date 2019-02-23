@@ -10,7 +10,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/jmoiron/sqlx"
-	"gitlab.com/pagalguy/loki/models"
+	"github.com/sonnes/loki/models"
 )
 
 const (

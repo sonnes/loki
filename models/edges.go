@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"gitlab.com/pagalguy/loki/database"
+	"github.com/sonnes/loki/database"
 )
 
 const (

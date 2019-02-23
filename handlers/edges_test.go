@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitlab.com/pagalguy/loki/database"
-	"gitlab.com/pagalguy/loki/models"
+	"github.com/sonnes/loki/database"
+	"github.com/sonnes/loki/models"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/syndtr/goleveldb/leveldb/journal"
-	pb "gitlab.com/pagalguy/loki/ds_to_sql/pb"
+	pb "github.com/sonnes/loki/ds_to_sql/pb"
 )
 
 type CSVMixin interface {

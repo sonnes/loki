@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"time"
 
-	pb "gitlab.com/pagalguy/loki/ds_to_sql/pb"
+	pb "github.com/sonnes/loki/ds_to_sql/pb"
 	"google.golang.org/appengine"
 )
 

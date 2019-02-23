@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"gitlab.com/pagalguy/loki/database"
-	"gitlab.com/pagalguy/loki/models"
+	"github.com/sonnes/loki/database"
+	"github.com/sonnes/loki/models"
 )
 
 type InitEdgeRequest struct {

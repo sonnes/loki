@@ -1,4 +1,4 @@
-package: gitlab.com/pagalguy/loki
+package: github.com/sonnes/loki
 import:
 - package: github.com/jmoiron/sqlx
 - package: github.com/ExpansiveWorlds/instrumentedsql
