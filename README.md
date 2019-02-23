@@ -1,4 +1,6 @@
-This is an edgestore API. The goal is to give a powerful & faster querying capability to applications based on GAE.
+This is an experimental API that stores & serves edges. The goal is to store different relations - edges, to a relational database and provide faster querying for counts, joins, feeds etc for applications based on GAE.
+
+This is just a learning project. I started to learn building services in Go.
 
 ## Bulk Importing Edges
 
