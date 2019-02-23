@@ -1,0 +1,18 @@
+runtime: go
+env: flex
+service: edgestore
+
+manual_scaling:
+  instances: 1
+resources:
+  cpu: 1
+  memory_gb: 1
+  disk_size_gb: 10
+
+env_variables:
+  POSTGRES_CONNECTION: "{postgres connection string}"
+  SYNC_PUBSUB_TOPIC_NAME: "edgestore.edges.sync"
+  ENV: production
+
+beta_settings:
+  cloud_sql_instances: "cloud sql connection string, if using cloud sql"
